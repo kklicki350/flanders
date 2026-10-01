@@ -3,14 +3,14 @@
 # Version: 6.5.0
 # Date: 2026-04-26T14:46:36.707Z
 
-project_name: diddly
+project_name: flanders
 user_skill_level: intermediate
 planning_artifacts: "{project-root}/_bmad-output/planning-artifacts"
 implementation_artifacts: "{project-root}/_bmad-output/implementation-artifacts"
 project_knowledge: "{project-root}/docs"
 
 # Core Configuration Values
-user_name: Deck
+user_name: Kevin Klicki
 communication_language: English
 document_output_language: English
 output_folder: _bmad-output
