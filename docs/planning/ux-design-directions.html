@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FLANDERS — Design Directions</title>
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --surface-2:#f1f3f6; --border:#d9dee5; --border-strong:#b9c1cc;
+  --text:#18202b; --text-2:#4a5565; --text-3:#7a8595;
+  --accent:#0f8a8a; --accent-soft:#d8f0ef; --accent-text:#ffffff;
+  --sig:#0f8a8a; --nonsig:#9aa4b2; --fail:#c62828; --fail-soft:#fdeaea; --warn:#b26a00; --warn-soft:#fff4e0;
+  --t-bgc:#E69F00; --t-sp:#56B4E9; --t-tm:#009E73; --t-pfam:#CC79A7;
+  --seed:#2f3a4a; --flank:#c9d0da;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ui: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#0f141b; --surface:#161d27; --surface-2:#1d2633; --border:#2a3545; --border-strong:#3b4a5e;
+  --text:#e6ebf2; --text-2:#aab4c3; --text-3:#7d899a;
+  --accent:#2bb5b0; --accent-soft:#123b3c; --accent-text:#071214;
+  --sig:#2bb5b0; --nonsig:#5d6878; --fail:#ef5350; --fail-soft:#3a1717; --warn:#f0a43a; --warn-soft:#3a2a10;
+  --seed:#cfd8e3; --flank:#3b4757;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 var(--ui)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+
+/* showcase chrome */
+.chrome{position:sticky;top:0;z-index:50;background:#0b1118;color:#e6ebf2;display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #000;flex-wrap:wrap}
+.chrome h1{font-size:14px;margin:0 12px 0 0;font-weight:600;letter-spacing:.02em}
+.chrome .dtab{background:transparent;border:1px solid #2a3545;color:#c9d2de;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:13px}
+.chrome .dtab[aria-selected="true"]{background:#2bb5b0;border-color:#2bb5b0;color:#071214;font-weight:600}
+.chrome .spacer{flex:1}
+.chrome .tg{background:#1d2633;border:1px solid #2a3545;color:#e6ebf2;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:13px}
+.dirnote{max-width:1400px;margin:14px auto 0;padding:0 16px;color:var(--text-2);font-size:13px}
+.dirnote b{color:var(--text)}
+.frame{max-width:1400px;margin:10px auto 40px;padding:0 16px}
+.app{background:var(--bg);border:1px solid var(--border-strong);border-radius:10px;overflow:hidden;min-width:1100px}
+.scroller{overflow-x:auto}
+
+/* app primitives */
+.nav{display:flex;align-items:center;gap:4px;background:var(--surface);border-bottom:1px solid var(--border);padding:0 14px;height:44px}
+.brand{font-weight:700;letter-spacing:.08em;font-size:13px;margin-right:14px}
+.navlink{padding:12px 10px;color:var(--text-2);border-bottom:2px solid transparent;cursor:default;font-size:13px}
+.navlink.on{color:var(--text);border-bottom-color:var(--accent);font-weight:600}
+.navright{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-2)}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface-2);padding:2px 8px;border-radius:999px;font-size:12px;color:var(--text-2)}
+.ledgerbar{display:flex;align-items:center;gap:12px;background:var(--surface-2);border-bottom:1px solid var(--border);padding:6px 14px;font-size:12px}
+.prog{flex:0 0 160px;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.prog>i{display:block;height:100%;width:66%;background:var(--accent)}
+.failtxt{color:var(--fail);font-weight:600}
+.statsbar{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:var(--surface);border-bottom:1px solid var(--border);padding:8px 14px;font-size:13px}
+.ctl{display:flex;align-items:center;gap:8px;color:var(--text-2)}
+.seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:6px;overflow:hidden}
+.seg button{background:var(--surface);border:0;padding:4px 10px;cursor:pointer;font-size:12px;color:var(--text-2)}
+.seg button+button{border-left:1px solid var(--border-strong)}
+.seg button.on{background:var(--accent);color:var(--accent-text);font-weight:600}
+input[type=range]{accent-color:var(--accent);width:120px}
+.runsum{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:12px;color:var(--text-3)}
+.btn{background:var(--surface);border:1px solid var(--border-strong);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-text);font-weight:600}
+
+table.ft{width:100%;border-collapse:collapse;background:var(--surface)}
+.ft th{position:sticky;top:0;background:var(--surface-2);text-align:left;font-weight:600;font-size:12px;color:var(--text-2);padding:6px 10px;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;user-select:none}
+.ft th.num,.ft td.num{text-align:right}
+.ft td{padding:0 10px;height:28px;border-bottom:1px solid var(--border);font-size:13px;white-space:nowrap}
+.ft.comfy td{height:36px}
+.ft tr:hover td{background:var(--accent-soft)}
+.ft tr.sel td{background:var(--accent-soft)}
+.ft tr{cursor:pointer}
+.cat{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:8px;vertical-align:middle}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:56px;font-size:11px;padding:1px 6px;border-radius:999px;font-weight:600}
+.badge.s{background:var(--sig);color:var(--accent-text)}
+.badge.n{border:1px solid var(--nonsig);color:var(--nonsig)}
+.flip td{animation:flip 1.4s ease-out}
+@keyframes flip{0%{background:var(--warn-soft)}100%{background:transparent}}
+.excl{color:var(--text-3);font-size:11px}
+.excl b{color:var(--fail);font-weight:600}
+.recomp{font-size:11px;color:var(--text-3);margin-left:8px;opacity:0;transition:opacity .2s}
+.recomp.on{opacity:1}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.panel h3{margin:0;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);padding:8px 12px;border-bottom:1px solid var(--border)}
+.pad{padding:10px 12px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--text-2);flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.tracktgl{display:flex;gap:6px;flex-wrap:wrap}
+.tracktgl label{display:inline-flex;gap:5px;align-items:center;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:2px 8px;cursor:pointer}
+.muted{color:var(--text-3)}
+.small{font-size:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* notebook */
+.nb{padding:14px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+.cell{display:grid;grid-template-columns:70px 1fr;gap:10px}
+.cell .lab{font-family:var(--mono);font-size:12px;color:var(--accent);text-align:right;padding-top:10px}
+.cell .body{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px}
+
+/* sidebar */
+.side{display:grid;grid-template-columns:260px 1fr;min-height:560px}
+.rail{background:var(--surface);border-right:1px solid var(--border);padding:14px;display:flex;flex-direction:column;gap:16px}
+.rail h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12px}
+.kv dt{color:var(--text-3)} .kv dd{margin:0;font-family:var(--mono)}
+
+/* split */
+.split{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);min-height:560px}
+.split .left{border-right:1px solid var(--border);overflow:auto;max-height:620px}
+.split .right{padding:12px;display:flex;flex-direction:column;gap:12px;background:var(--bg)}
+
+/* inline expansion */
+tr.expand td{height:auto;padding:10px 14px;background:var(--surface-2)}
+tr.expand:hover td{background:var(--surface-2)}
+</style>
+</head>
+<body>
+
+<div class="chrome" role="tablist">
+  <h1>FLANDERS · Design Directions</h1>
+  <span id="tabs"></span>
+  <span class="spacer"></span>
+  <button class="tg" id="themeBtn">Toggle dark</button>
+</div>
+
+<div class="dirnote" id="dirnote"></div>
+<div class="frame"><div class="scroller"><div class="app" id="app"></div></div></div>
+
+<script>
+/* ---------- data (illustrative, ebo-shaped) ---------- */
+const ANALYZED=89, FAILED=[["AWXR01000002","NCBI timeout"],["JSYN01000004","accession not found"],["LMPU01000001","antiSMASH exited 1"]];
+const CATS={sp:{name:"Signal peptide",c:"var(--t-sp)"},tm:{name:"Transmembrane",c:"var(--t-tm)"},pfam:{name:"Pfam",c:"var(--t-pfam)"},bgc:{name:"antiSMASH BGC",c:"var(--t-bgc)"}};
+const FEATURES=[
+ {f:"Signal peptide (Sec/SPI)",cat:"sp",n:85,eff:2.4,p:1.2e-10},
+ {f:"PF00005 ABC_tran",cat:"pfam",n:61,eff:3.1,p:4.0e-8},
+ {f:"PF00528 BPD_transp_1",cat:"pfam",n:48,eff:2.7,p:2.2e-6},
+ {f:"PF07690 MFS_1",cat:"pfam",n:33,eff:2.2,p:6.5e-5},
+ {f:"TM helices ≥ 2",cat:"tm",n:70,eff:1.6,p:3.1e-4},
+ {f:"Lipoprotein (SPII)",cat:"sp",n:18,eff:2.0,p:2.8e-3},
+ {f:"Signal peptide (Tat)",cat:"sp",n:22,eff:1.9,p:4.1e-3},
+ {f:"PF00072 Response_reg",cat:"pfam",n:27,eff:1.5,p:6.2e-3},
+ {f:"PF00106 adh_short",cat:"pfam",n:31,eff:1.3,p:1.2e-2},
+ {f:"PF02518 HATPase_c",cat:"pfam",n:25,eff:1.4,p:1.9e-2},
+ {f:"PF01081 Aldolase",cat:"pfam",n:9,eff:1.4,p:0.21},
+ {f:"PF13561 adh_short_C2",cat:"pfam",n:14,eff:1.1,p:0.37},
+ {f:"antiSMASH: T1PKS",cat:"bgc",n:6,eff:1.2,p:0.44},
+ {f:"antiSMASH: NRPS",cat:"bgc",n:4,eff:0.9,p:0.81},
+];
+/* neighborhood: Azospirillum sp. B510, plasmid pAB510b */
+const GENES=[
+ {id:"BAI74651",prod:"ABC transporter ATP-binding",seed:0,dir:1,len:1.0,a:{pfam:1}},
+ {id:"BAI74652",prod:"ABC permease",seed:0,dir:1,len:0.9,a:{pfam:1,tm:1}},
+ {id:"BAI74653",prod:"periplasmic binding protein",seed:0,dir:1,len:1.1,a:{sp:1}},
+ {id:"BAI74654",prod:"hypothetical protein",seed:0,dir:-1,len:0.6,a:{}},
+ {id:"EboA",prod:"ebo cluster A",seed:1,dir:1,len:1.0,a:{sp:1}},
+ {id:"EboB",prod:"ebo cluster B",seed:1,dir:1,len:0.8,a:{tm:1}},
+ {id:"EboC",prod:"ebo cluster C",seed:1,dir:1,len:1.2,a:{}},
+ {id:"EboD",prod:"ebo cluster D",seed:1,dir:1,len:0.9,a:{pfam:1}},
+ {id:"EboE",prod:"ebo cluster E",seed:1,dir:1,len:1.1,a:{}},
+ {id:"EboF",prod:"ebo cluster F",seed:1,dir:1,len:0.7,a:{sp:1}},
+ {id:"BAI74661",prod:"MFS transporter",seed:0,dir:-1,len:1.2,a:{pfam:1,tm:1}},
+ {id:"BAI74662",prod:"lipoprotein",seed:0,dir:-1,len:0.7,a:{sp:1}},
+ {id:"BAI74663",prod:"response regulator",seed:0,dir:1,len:0.8,a:{pfam:1}},
+ {id:"BAI74664",prod:"T1PKS fragment",seed:0,dir:1,len:1.3,a:{bgc:1}},
+];
+
+/* ---------- stats ---------- */
+const S={method:"bh",alpha:0.05,sort:"q",dir:1,sel:0,tracks:{bgc:1,sp:1,tm:1,pfam:1}};
+let prevSig=null;
+function computeQ(){
+  const m=FEATURES.length;
+  FEATURES.forEach(r=>r.q=r.p);
+  if(S.method==="bonf") FEATURES.forEach(r=>r.q=Math.min(1,r.p*m));
+  if(S.method==="bh"){
+    const o=[...FEATURES].sort((a,b)=>a.p-b.p); let run=1;
+    for(let i=m-1;i>=0;i--){run=Math.min(run,o[i].p*m/(i+1)); o[i].q=Math.min(1,run);}
+  }
+  FEATURES.forEach(r=>r.sig=r.q<S.alpha);
+}
+const fmt=x=>x<1e-3?x.toExponential(1).replace("e-","e-0").replace(/e-0(\d\d)/,"e-$1"):x.toFixed(3);
+function rows(){
+  const k=S.sort, d=S.dir;
+  return [...FEATURES].sort((a,b)=>{
+    if(k==="f") return d*a.f.localeCompare(b.f);
+    return d*(a[k]-b[k]);
+  });
+}
+
+/* ---------- shared components ---------- */
+const nav=(on="Features")=>`<div class="nav"><span class="brand">FLANDERS</span>${["Features","Genomes","Runs","Compose"].map(x=>`<span class="navlink ${x===on?"on":""}">${x}</span>`).join("")}<span class="navright"><span class="chip">run <b class="mono">ebo-flank4</b></span><span class="chip" style="color:var(--sig)">● complete</span></span></div>`;
+const ledgerbar=()=>`<div class="ledgerbar"><b>Variant running:</b><span class="mono">ebo-flank8</span><span class="prog"><i></i></span><span class="mono">61/92 complete</span><span class="failtxt">✖ 2 failed</span><span class="muted">antiSMASH on CP010054…</span><span style="margin-left:auto" class="btn">Open ledger</span><span class="btn">■ Cancel</span></div>`;
+const methodSeg=()=>`<span class="seg">${[["bh","BH"],["bonf","Bonferroni"],["none","None"]].map(([k,l])=>`<button data-act="method" data-v="${k}" class="${S.method===k?"on":""}">${l}</button>`).join("")}</span>`;
+const alphaCtl=()=>`<input type="range" min="0.001" max="0.1" step="0.001" value="${S.alpha}" data-act="alpha" aria-label="significance threshold"><span class="mono" data-dyn>α ${S.alpha.toFixed(3)}</span>`;
+const testSeg=()=>`<span class="seg"><button class="on">Binomial</button><button>Permutation</button></span>`;
+const bgSeg=()=>`<span class="seg"><button class="on">Paralog-collapsed</button><button>Raw</button></span>`;
+const statsbar=(extra="")=>`<div class="statsbar"><span class="ctl">Test ${testSeg()}</span><span class="ctl">Correction ${methodSeg()}</span><span class="ctl">Threshold ${alphaCtl()}</span><span class="ctl">Background ${bgSeg()}</span><span class="recomp" id="recomp">recomputing…</span>${extra}<span class="runsum"><span class="chip">flank 4 ORFs</span><span class="chip">min id 30%</span><span class="btn">Launch variant…</span></span></div>`;
+const sigCount=()=>FEATURES.filter(r=>r.sig).length;
+function featTable({comfy=false,expandSel=false}={}){
+  const arrow=k=>S.sort===k?(S.dir>0?" ▲":" ▼"):"";
+  const head=`<tr><th data-sort="f">Feature${arrow("f")}</th><th class="num" data-sort="n">Genomes${arrow("n")}</th><th class="num" data-sort="eff">Effect${arrow("eff")}</th><th class="num" data-sort="p">p${arrow("p")}</th><th class="num" data-sort="q">q${arrow("q")}</th><th>Verdict</th></tr>`;
+  const body=rows().map((r,i)=>{
+    const idx=FEATURES.indexOf(r);
+    const flip=prevSig&&prevSig[idx]!==r.sig?"flip":"";
+    const tr=`<tr class="${flip} ${S.sel===idx?"sel":""}" data-act="sel" data-v="${idx}"><td><span class="cat" style="background:${CATS[r.cat].c}"></span>${r.f}</td><td class="num mono">${r.n}/${ANALYZED} <span class="excl">· <b>${FAILED.length}</b> failed</span></td><td class="num mono">${r.eff.toFixed(1)}×</td><td class="num mono">${fmt(r.p)}</td><td class="num mono">${fmt(r.q)}</td><td><span class="badge ${r.sig?"s":"n"}">${r.sig?"● sig":"○ n.s."}</span></td></tr>`;
+    const ex=expandSel&&S.sel===idx?`<tr class="expand"><td colspan="6">${neighborhoodBlock(true)}</td></tr>`:"";
+    return tr+ex;
+  }).join("");
+  return `<div data-dyn><table class="ft ${comfy?"comfy":""}">${head}${body}</table></div>`;
+}
+function geneMap(w=640){
+  const sel=FEATURES[S.sel].cat;
+  const total=GENES.reduce((s,g)=>s+g.len,0), gap=6, unit=(w-20-gap*(GENES.length-1))/total;
+  let x=10, out="", tracks="";
+  const trackKeys=["bgc","sp","tm","pfam"].filter(k=>S.tracks[k]);
+  GENES.forEach(g=>{
+    const gw=g.len*unit, y=18, h=18, tip=Math.min(9,gw*.35);
+    const pts=g.dir>0?`${x},${y} ${x+gw-tip},${y} ${x+gw},${y+h/2} ${x+gw-tip},${y+h} ${x},${y+h}`:`${x+tip},${y} ${x+gw},${y} ${x+gw},${y+h} ${x+tip},${y+h} ${x},${y+h/2}`;
+    const hl=g.a[sel]?`stroke="var(--accent)" stroke-width="2.5"`:`stroke="var(--border-strong)" stroke-width="1"`;
+    out+=`<polygon points="${pts}" fill="${g.seed?"var(--seed)":"var(--flank)"}" ${hl}><title>${g.id} — ${g.prod}</title></polygon>`;
+    out+=`<text x="${x+gw/2}" y="${y-5}" font-size="9" text-anchor="middle" fill="var(--text-3)" font-family="var(--mono)">${g.id.replace("BAI","")}</text>`;
+    trackKeys.forEach((k,ti)=>{ if(g.a[k]) tracks+=`<rect x="${x}" y="${48+ti*9}" width="${gw}" height="6" rx="2" fill="${CATS[k].c}"/>`; });
+    x+=gw+gap;
+  });
+  const lab=trackKeys.map((k,ti)=>`<text x="${w-4}" y="${54+ti*9}" font-size="8" text-anchor="end" fill="var(--text-3)"></text>`).join("");
+  return `<svg viewBox="0 0 ${w} ${54+trackKeys.length*9}" width="100%" role="img" aria-label="gene neighborhood"><line x1="6" x2="${w-6}" y1="27" y2="27" stroke="var(--border)"/>${out}${tracks}${lab}</svg>`;
+}
+const trackToggles=()=>`<div class="tracktgl">${Object.entries(CATS).map(([k,c])=>`<label><input type="checkbox" data-act="track" data-v="${k}" ${S.tracks[k]?"checked":""}><span class="cat" style="background:${c.c};margin:0"></span>${c.name}</label>`).join("")}</div>`;
+function neighborhoodBlock(compact=false){
+  const r=FEATURES[S.sel];
+  return `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px"><div class="small"><b>Azospirillum sp. B510</b> <span class="mono muted">pAB510b · upstream + seed + downstream</span> · highlighting <b>${r.f}</b></div>${compact?"":trackToggles()}</div>${geneMap()}<div class="small muted" style="margin-top:4px">Hover a gene for accession, product, and annotations · <span style="color:var(--accent)">Open provenance ›</span></div>`;
+}
+function volcano(w=520,h=260){
+  const pad=34, xs=e=>pad+(Math.log2(e)+0.5)/(2.2)*(w-pad*2), ys=q=>h-pad-(-Math.log10(Math.max(q,1e-12)))/10*(h-pad*2);
+  const thr=ys(S.alpha);
+  let pts=FEATURES.map((r,i)=>`<circle cx="${xs(r.eff)}" cy="${ys(r.q)}" r="${S.sel===i?7:5}" fill="${r.sig?"var(--sig)":"var(--nonsig)"}" stroke="${S.sel===i?"var(--text)":"none"}" stroke-width="2" data-act="sel" data-v="${i}" style="cursor:pointer"><title>${r.f} · q ${fmt(r.q)}</title></circle>`).join("");
+  const labs=FEATURES.filter(r=>r.sig).slice(0,4).map(r=>`<text x="${xs(r.eff)+8}" y="${ys(r.q)+3}" font-size="10" fill="var(--text-2)">${r.f.replace(/^PF\d+ /,"")}</text>`).join("");
+  return `<div data-dyn><svg viewBox="0 0 ${w} ${h}" width="100%"><line x1="${pad}" x2="${w-pad}" y1="${thr}" y2="${thr}" stroke="var(--warn)" stroke-dasharray="4 3"/><text x="${w-pad}" y="${thr-4}" font-size="10" text-anchor="end" fill="var(--warn)">α = ${S.alpha.toFixed(3)} (${S.method==="none"?"uncorrected":S.method==="bh"?"BH":"Bonferroni"})</text><line x1="${pad}" x2="${w-pad}" y1="${h-pad}" y2="${h-pad}" stroke="var(--border-strong)"/><line x1="${pad}" x2="${pad}" y1="${pad/2}" y2="${h-pad}" stroke="var(--border-strong)"/><text x="${w/2}" y="${h-8}" font-size="10" text-anchor="middle" fill="var(--text-3)">log₂ effect size</text><text x="12" y="${h/2}" font-size="10" text-anchor="middle" fill="var(--text-3)" transform="rotate(-90 12 ${h/2})">−log₁₀ q</text>${pts}${labs}</svg></div>`;
+}
+const failList=()=>`<div class="small">${FAILED.map(([a,why])=>`<div style="display:flex;gap:8px;padding:3px 0"><span class="failtxt">✖</span><span class="mono">${a}</span><span class="muted">${why} — excluded from all denominators</span></div>`).join("")}</div>`;
+
+/* ---------- directions ---------- */
+const DIRS=[
+ {key:"spread",name:"1 · Spreadsheet",note:"<b>Spreadsheet.</b> The baseline from Steps 7–8: top nav, sticky statistics bar, a full-width dense table. Drill-down opens the genome list, then the neighborhood. Maximum rows on screen, closest to a tool users already know.",
+  render:()=>`${nav()}${ledgerbar()}${statsbar()}<div style="padding:0">${featTable()}</div><div class="pad small muted" style="background:var(--surface)" data-dyn>${sigCount()} of ${FEATURES.length} features significant · click a row → genomes carrying it → neighborhood</div>`},
+ {key:"notebook",name:"2 · Notebook",note:"<b>Notebook.</b> Your Jupyter reference taken literally: a vertical stack of cells — controls, ranked table, volcano plot, neighborhood — each reacting to the one above, Observable-style. Reads like an analysis narrative, at the cost of scrolling.",
+  render:()=>`${nav()}${ledgerbar()}<div class="nb">
+   <div class="cell"><div class="lab">stats</div><div class="body"><div class="statsbar" style="border:0">${`<span class="ctl">Test ${testSeg()}</span><span class="ctl">Correction ${methodSeg()}</span><span class="ctl">Threshold ${alphaCtl()}</span><span class="ctl">Background ${bgSeg()}</span><span class="recomp" id="recomp">recomputing…</span>`}</div></div></div>
+   <div class="cell"><div class="lab">rank</div><div class="body">${featTable()}</div></div>
+   <div class="cell"><div class="lab">plot</div><div class="body pad">${volcano(760,240)}</div></div>
+   <div class="cell"><div class="lab">genome</div><div class="body pad">${neighborhoodBlock()}</div></div></div>`},
+ {key:"split",name:"3 · Split view",note:"<b>Split view.</b> Master–detail: the ranked table on the left, the evidence for the selected feature live on the right — volcano position, an example neighborhood, and failures. Clicking a row updates the right pane without navigating away.",
+  render:()=>`${nav()}${ledgerbar()}${statsbar()}<div class="split"><div class="left">${featTable()}</div><div class="right">
+   <div class="panel"><h3>Selected · ${FEATURES[S.sel].f}</h3><div class="pad small" data-dyn>${FEATURES[S.sel].n}/${ANALYZED} genomes · effect <span class="mono">${FEATURES[S.sel].eff.toFixed(1)}×</span> · q <span class="mono">${fmt(FEATURES[S.sel].q)}</span> · <span class="badge ${FEATURES[S.sel].sig?"s":"n"}">${FEATURES[S.sel].sig?"● sig":"○ n.s."}</span></div></div>
+   <div class="panel"><h3>Example neighborhood</h3><div class="pad">${neighborhoodBlock()}</div></div>
+   <div class="panel"><h3>Excluded genomes (${FAILED.length})</h3><div class="pad">${failList()}</div></div></div></div>`},
+ {key:"rail",name:"4 · Control rail",note:"<b>Control rail.</b> Shiny/Observable-dashboard layout: every analysis setting and run fact lives in a fixed left rail, the table gets the rest. Settings are always visible; the rail costs ~260px of table width.",
+  render:()=>`${nav()}${ledgerbar()}<div class="side"><div class="rail">
+   <div><h4>Statistics</h4><div style="display:flex;flex-direction:column;gap:10px" class="small"><div>Test<br>${testSeg()}</div><div>Correction<br>${methodSeg()}</div><div>Threshold<br>${alphaCtl()}</div><div>Background<br>${bgSeg()}</div><span class="recomp" id="recomp">recomputing…</span></div></div>
+   <div><h4>Run (heavy — read-only)</h4><dl class="kv"><dt>run</dt><dd>ebo-flank4</dd><dt>flank</dt><dd>4 ORFs</dd><dt>min id</dt><dd>30%</dd><dt>genomes</dt><dd>89 / 92</dd></dl><div style="margin-top:8px"><span class="btn">Launch variant…</span></div></div>
+   <div><h4>Excluded</h4>${failList()}</div>
+   <div><h4>Tracks</h4>${trackToggles()}</div></div>
+   <div>${featTable()}</div></div>`},
+ {key:"volcano",name:"5 · Plot-first",note:"<b>Plot-first.</b> A volcano plot (effect vs corrected significance) leads, with the threshold line moving as you change correction or α; the table sits below. Shows the whole clade's shape at a glance — click a point to select its row.",
+  render:()=>`${nav()}${ledgerbar()}${statsbar()}<div class="grid2" style="padding:12px;background:var(--bg)"><div class="panel"><h3>Enrichment landscape</h3><div class="pad">${volcano()}</div></div><div class="panel"><h3>Selected · ${FEATURES[S.sel].f}</h3><div class="pad">${neighborhoodBlock()}</div></div></div><div>${featTable()}</div>`},
+ {key:"inline",name:"6 · Inline expand",note:"<b>Inline expand.</b> Genome-browser feel, shown dark: clicking a feature row expands it in place to show an example neighborhood with annotation tracks — no navigation at all for a quick look. Comfortable row height. (Toggle the theme to see it light.)",
+  dark:true, render:()=>`${nav()}${ledgerbar()}${statsbar(`<span class="ctl">${trackToggles()}</span>`)}${featTable({comfy:true,expandSel:true})}`},
+];
+
+/* ---------- wiring ---------- */
+let cur=0;
+const app=document.getElementById("app");
+function render(markFlip){
+  computeQ();
+  if(!markFlip) prevSig=null;
+  app.innerHTML=DIRS[cur].render();
+  document.getElementById("dirnote").innerHTML=DIRS[cur].note;
+  prevSig=FEATURES.map(r=>r.sig);
+}
+function tabs(){
+  document.getElementById("tabs").innerHTML=DIRS.map((d,i)=>`<button class="dtab" role="tab" aria-selected="${i===cur}" data-tab="${i}">${d.name}</button>`).join(" ");
+}
+document.getElementById("tabs").addEventListener("click",e=>{
+  const t=e.target.closest("[data-tab]"); if(!t) return;
+  cur=+t.dataset.tab; tabs();
+  if(DIRS[cur].dark) document.documentElement.dataset.theme="dark";
+  render(false);
+});
+document.getElementById("themeBtn").onclick=()=>{
+  const r=document.documentElement; r.dataset.theme=r.dataset.theme==="dark"?"light":"dark"; render(false);
+};
+function recomputeFlash(partialOnly){
+  const old=FEATURES.map(r=>r.sig); computeQ(); prevSig=old;
+  const tmp=document.createElement("div"); tmp.innerHTML=DIRS[cur].render(); prevSig=FEATURES.map(r=>r.sig);
+  const a=app.querySelectorAll("[data-dyn]"), b=tmp.querySelectorAll("[data-dyn]");
+  if(partialOnly && a.length===b.length){ a.forEach((el,i)=>{el.innerHTML=b[i].innerHTML;}); }
+  else { app.innerHTML=tmp.innerHTML; }
+  const rc=document.getElementById("recomp"); if(rc){rc.classList.add("on");setTimeout(()=>rc.classList.remove("on"),500);}
+}
+app.addEventListener("click",e=>{
+  const th=e.target.closest("th[data-sort]");
+  if(th){const k=th.dataset.sort; S.dir=S.sort===k?-S.dir:(k==="f"?1:(k==="p"||k==="q"?1:-1)); S.sort=k; render(false); return;}
+  const el=e.target.closest("[data-act]"); if(!el) return;
+  const a=el.dataset.act;
+  if(a==="method"){S.method=el.dataset.v; recomputeFlash();}
+  else if(a==="sel"){S.sel=+el.dataset.v; render(false);}
+});
+app.addEventListener("input",e=>{
+  if(e.target.dataset.act==="alpha"){S.alpha=+e.target.value; recomputeFlash(true);}
+});
+app.addEventListener("change",e=>{
+  if(e.target.dataset.act==="track"){S.tracks[e.target.dataset.v]=e.target.checked?1:0; render(false);}
+});
+tabs(); render(false);
+</script>
+</body>
+</html>
