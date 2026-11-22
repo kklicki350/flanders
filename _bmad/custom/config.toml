@@ -5,3 +5,10 @@
 #
 # [agents.bmad-agent-pm]
 # description = "Prefers short, bulleted PRDs over narrative drafts."
+
+# FLANDERS project overrides (survive installer re-runs).
+# NOTE: most BMM skills read _bmad/bmm/config.yaml directly, which the
+# installer regenerates. If a reinstall resets it, re-apply these values there.
+[modules.bmm]
+project_name = "flanders"
+planning_artifacts = "{project-root}/docs/planning"
