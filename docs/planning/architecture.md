@@ -163,7 +163,7 @@ uv run django-admin startproject site src/flanders/web
 
 - **No authentication.** Single user, loopback only. The shim publishes the GUI as `-p 127.0.0.1:<port>:<port>`; Django's `ALLOWED_HOSTS` = localhost; CSRF stays on (htmx sends the token) (NFR20).
 - **No telemetry.** Network calls only for user-requested NCBI retrieval, remote search, reference-data download and image pull (NFR21).
-- **DTU predictors** (SignalP 6, TMHMM 2.0c) are installed by the user into `~/flanders/tools/` and detected at run time. CI inspects the published image layers to confirm no DTU binary is present (NFR22).
+- **Restricted predictors** (SignalP 6, SignalP 5, TMHMM 2.0c, Phobius) are installed by the user into `~/flanders/tools/` and detected at run time. CI inspects the published image layers to confirm no DTU binary is present (NFR22).
 - **Untrusted imports:** bundles are schema-validated before anything is written to the index; archive paths are sanitized (no absolute paths, no `..`); imported runs are read-only (FR74–FR75).
 
 ### API & Communication Patterns
