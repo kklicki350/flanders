@@ -41,7 +41,7 @@
               "type": "null"
             }
           ],
-          "description": "log2 enrichment, 0.5 pseudocount",
+          "description": "log2((k/n)/(b/B)); null when k = 0",
           "title": "Effect Log2"
         },
         "feature": {

@@ -2,3 +2,6 @@ name: env-antismash8
 channels: [conda-forge, bioconda]
 dependencies:
   - antismash=8.0.4
+  # Not pulled in by the bioconda recipe but required by antiSMASH modules:
+  - blast        # thiopeptides
+  - prodigal     # gene finding for unannotated records

@@ -1,0 +1,10 @@
+# ebo test set from the original FLANDERS test_cluster_list.txt (scaffold -> assembly)
+GCF_000020025.1   # Nostoc punctiforme PCC 73102 (query source, CP001037)
+GCF_000147335.1   # Gloeothece verrucosa PCC 7822
+GCF_000317555.1   # Gloeocapsa sp. PCC 7428
+GCF_000021825.1   # Gloeothece citriformis PCC 7424
+GCF_000317125.1   # Chroococcidiopsis thermalis PCC 7203
+GCF_000009705.1   # Nostoc sp. PCC 7120
+GCF_000017845.1   # Crocosphaera subtropica ATCC 51142
+GCF_000418325.1   # Sorangium cellulosum So0157-2 (non-cyanobacterial ebo)
+GCF_000005845.2   # Escherichia coli K-12 MG1655 (negative control: expect no cluster)

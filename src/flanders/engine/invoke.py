@@ -67,8 +67,14 @@ def tool_version(env: str | None, argv: tuple[str, ...]) -> str:
         out = subprocess.run(list(argv), env=_environ(env, None), capture_output=True, text=True, timeout=120)
     except (OSError, subprocess.TimeoutExpired):
         return "unknown"
-    text = (out.stdout or out.stderr).strip().splitlines()
-    return text[0].strip() if text else "unknown"
+    import re
+
+    lines = [ln.strip() for ln in (out.stdout + "\n" + out.stderr).splitlines() if ln.strip()]
+    # Tools print warnings before their version (e.g. cblaster's genomicsqlite notice).
+    for ln in lines:
+        if re.search(r"\d+\.\d+", ln) and "warn" not in ln.lower() and "fail" not in ln.lower():
+            return ln
+    return lines[0] if lines else "unknown"
 
 
 @lru_cache(maxsize=64)
@@ -151,6 +157,7 @@ def _record(tool, env, version, argv, cwd, started, rc, out_path, err_path, note
     path = current_record.get()
     if path is None:
         return
+    argv = redact(argv)
     entry = {
         "ts": utcnow_iso(),
         "tool": tool,
@@ -169,6 +176,18 @@ def _record(tool, env, version, argv, cwd, started, rc, out_path, err_path, note
     line = json.dumps(entry) + "\n"
     with _record_lock, open(path, "a") as fh:
         fh.write(line)
+
+
+SECRET_FLAGS = ("--api_key", "--api-key")
+
+
+def redact(argv: list[str]) -> list[str]:
+    """Never record credentials (they would travel inside run bundles)."""
+    out = list(argv)
+    for i, a in enumerate(out[:-1]):
+        if a in SECRET_FLAGS:
+            out[i + 1] = "<redacted>"
+    return out
 
 
 def passthrough_args(section: dict) -> list[str]:

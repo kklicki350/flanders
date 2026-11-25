@@ -82,3 +82,9 @@ def test_missing_input_is_config_error(env, tmp_path):
         pipeline.prepare(cfg_dir / "run.yaml", [], None, 2, ws)
 
 
+
+
+def test_api_key_redacted():
+    from flanders.engine.invoke import redact
+
+    assert redact(["datasets", "--api-key", "SECRET", "x"]) == ["datasets", "--api-key", "<redacted>", "x"]

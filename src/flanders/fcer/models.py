@@ -44,7 +44,7 @@ class FeatureTest(_Strict):
     n: int = Field(description="Neighborhood ORFs at this location")
     background_hits: int
     background_n: int
-    effect_log2: float | None = Field(description="log2 enrichment, 0.5 pseudocount")
+    effect_log2: float | None = Field(description="log2((k/n)/(b/B)); null when k = 0")
     p_value: float | None
     q_value: float | None = Field(description="Corrected across features at this location")
     significant: bool | None

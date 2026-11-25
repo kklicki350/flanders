@@ -62,6 +62,8 @@ class RunConfig(BaseModel):
     def model_post_init(self, _ctx: Any) -> None:
         if self.search == "snapshot" and not self.genomes:
             raise ValueError("search: snapshot needs `genomes:` (a file of assembly accessions)")
+        if self.search == "remote" and not self.ncbi.get("email"):
+            raise ValueError("search: remote needs `ncbi: {email: you@institution.edu}` (NCBI requires a contact)")
 
 
 def read_genome_list(text: str) -> list[str]:

@@ -77,7 +77,7 @@ def analyze(inp: EnrichInput, cfg: StatisticsConfig, seed: int) -> list[Location
                         "background_n": len(population),
                         "effect_log2": effect,
                         "p_value": res.p_value,
-                        "reason": res.reason,
+                        "reason": res.reason or ("no_neighborhood_hits" if k == 0 else None),
                     }
                 )
         # Correct across features, separately for each test, within this location.

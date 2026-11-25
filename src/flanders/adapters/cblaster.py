@@ -37,6 +37,21 @@ class Cluster:
     hits: list[Hit]
 
 
+PLACEHOLDER_EMAIL = "flanders-local-search@example.org"
+
+
+def configure(cwd: Path, email: str | None, api_key: str | None) -> None:
+    """cblaster refuses to run without a config folder holding an NCBI contact email.
+
+    Local searches never contact NCBI, so a placeholder is used unless the run config sets
+    `ncbi.email` (required by NCBI for remote searches).
+    """
+    argv = ["cblaster", "config", "--email", email or PLACEHOLDER_EMAIL]
+    if api_key:
+        argv += ["--api_key", api_key]
+    run_tool(tool="cblaster", argv=argv, cwd=cwd, env=ENV, version=version(), log_prefix="cblaster.config")
+
+
 def makedb(genbank_files: list[Path], name: str, cwd: Path, cpus: int) -> Path:
     argv = ["cblaster", "makedb", "--cpus", str(cpus), "--name", name, *map(str, genbank_files)]
     run_tool(tool="cblaster", argv=argv, cwd=cwd, env=ENV, version=version(), log_prefix="cblaster.makedb")

@@ -8,8 +8,6 @@ from dataclasses import dataclass
 import numpy as np
 from scipy import stats
 
-PSEUDOCOUNT = 0.5
-
 
 @dataclass(frozen=True)
 class TestResult:
@@ -55,12 +53,14 @@ def permutation_enrichment(
 
 
 def log2_enrichment(k: int, n: int, background_hits: int, background_n: int) -> float | None:
-    """log2((k/n) / (b/B)) with a 0.5 pseudocount on both counts."""
-    if n == 0 or background_n == 0:
+    """log2((k/n) / (b/B)). None when k == 0 (no neighborhood hits: the ratio is 0).
+
+    No pseudocount: the population includes the neighborhood, so k > 0 implies b > 0,
+    and a pseudocount would inflate small neighborhoods (0 of 4 would read as enriched).
+    """
+    if n == 0 or background_n == 0 or k == 0:
         return None
-    flank = (k + PSEUDOCOUNT) / (n + 2 * PSEUDOCOUNT)
-    back = (background_hits + PSEUDOCOUNT) / (background_n + 2 * PSEUDOCOUNT)
-    return math.log2(flank / back)
+    return math.log2((k / n) / (background_hits / background_n))
 
 
 def bonferroni(pvalues: list[float | None]) -> list[float | None]:

@@ -65,6 +65,8 @@ SCRIPTS = {
         args = sys.argv[1:]
         if args[:1] == ["--version"]:
             print("cblaster 1.4.2"); sys.exit(0)
+        if args[0] == "config":
+            sys.exit(0)
         if args[0] == "makedb":
             name = args[args.index("--name") + 1]
             pathlib.Path(f"{name}.dmnd").write_text("db"); pathlib.Path(f"{name}.sqlite3").write_text("db")

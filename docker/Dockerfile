@@ -17,6 +17,12 @@ COPY docker/envs/env-predictors.yml /tmp/envs/
 RUN micromamba create -y -f /tmp/envs/env-predictors.yml && micromamba clean -afy
 COPY docker/envs/env-antismash8.yml /tmp/envs/
 RUN micromamba create -y -f /tmp/envs/env-antismash8.yml && micromamba clean -afy
+# antiSMASH indexes profile HMMs bundled inside its package on first use; the container
+# runs as the host user and is recreated per command, so index them at build time.
+COPY docker/prepare_antismash.py /tmp/
+RUN E=/opt/conda/envs/env-antismash8 && find $E/lib/python3.*/site-packages/antismash -name "*.hmm" \
+      -exec $E/bin/hmmpress -f {} \; > /dev/null \
+    && PATH=$E/bin:$PATH $E/bin/python /tmp/prepare_antismash.py
 
 # FLANDERS's own Python environment from uv.lock.
 RUN micromamba create -y -n flanders -c conda-forge python=3.11 uv && micromamba clean -afy
@@ -29,6 +35,7 @@ RUN UV_PROJECT_ENVIRONMENT=/opt/flanders/.venv /opt/conda/envs/flanders/bin/uv s
     && rm -rf /root/.cache
 
 ENV FLANDERS_ENV_ROOT=/opt/conda/envs \
+    DEEPSIG_ROOT=/opt/conda/envs/env-predictors/share/deepsig \
     FLANDERS_IN_CONTAINER=1 \
     PATH=/opt/flanders/.venv/bin:$PATH \
     PYTHONUNBUFFERED=1

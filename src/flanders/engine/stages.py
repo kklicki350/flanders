@@ -146,6 +146,7 @@ def discover(ctx: RunContext, fetched_tags: list[str]) -> dict:
     query = ctx.paths.inputs / Path(ctx.cfg.query).name
     with task_output(final) as tmp:
         excluded: dict[str, str] = {}
+        cblaster.configure(tmp, ctx.cfg.ncbi.get("email"), ctx.cfg.ncbi.get("api_key"))
         if ctx.cfg.search == "snapshot":
             gbffs, record_to_tag = [], {}
             for tag in fetched_tags:
@@ -185,8 +186,12 @@ def discover(ctx: RunContext, fetched_tags: list[str]) -> dict:
                 continue
             cls.sort(key=lambda c: (-c.score, c.scaffold, c.start))
             best = cls[0]
+            organism = best.organism
+            if ctx.cfg.search == "snapshot":
+                # cblaster names local organisms after the input file; use the record's own name.
+                organism = genome_meta(ctx, tag).get("organism") or organism
             chosen[tag] = {
-                "organism": best.organism, "scaffold": best.scaffold, "start": best.start,
+                "organism": organism, "scaffold": best.scaffold, "start": best.start,
                 "end": best.end, "score": best.score, "other_clusters": len(cls) - 1,
                 "hits": [h.__dict__ for h in best.hits],
             }

@@ -1,0 +1,18 @@
+name: ebo-smoke
+query: ebo_query.faa
+genomes: genomes.txt
+search: snapshot
+flank_orfs: 4
+features: [signal_peptide, transmembrane, pfam, antismash]
+organism_group: gram-negative
+statistics:
+  tests: [binomial, permutation]
+  correction: bh
+  threshold: 0.05
+  background: paralog_collapsed
+  permutations: 10000
+cblaster:
+  min_identity: 30
+  min_coverage: 50
+antismash:
+  taxon: bacteria

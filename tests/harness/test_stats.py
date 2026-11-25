@@ -50,9 +50,10 @@ def test_permutation_p_never_zero():
     assert p == pytest.approx(1 / 1001)
 
 
-def test_log2_effect_pseudocount():
+def test_log2_effect():
     assert stats.log2_enrichment(0, 0, 1, 1) is None
-    assert stats.log2_enrichment(2, 4, 100, 1000) > 0
+    assert stats.log2_enrichment(0, 4, 311, 5526) is None  # no hits is not enrichment
+    assert stats.log2_enrichment(2, 4, 100, 1000) == pytest.approx(2.321928, rel=1e-6)
 
 
 def test_rng_child_independent_of_order():

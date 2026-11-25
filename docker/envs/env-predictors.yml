@@ -1,7 +1,13 @@
-# DeepSig ships in the image. PyTorch and Perl are here so user-supplied SignalP 6,
-# SignalP 5, TMHMM 2.0c and Phobius run without further downloads.
+# DeepSig ships in the image. DeepSig 1.2.5 pins TensorFlow 2.2.0 / Keras 2.4.3 on
+# Python 3.8; TensorFlow 2.2.0 is only published on Anaconda's main channel.
+# Perl is here so user-supplied TMHMM 2.0c and Phobius run without further downloads.
 name: env-predictors
-channels: [conda-forge, bioconda]
+channels:
+  - conda-forge
+  - bioconda
+  - https://repo.anaconda.com/pkgs/main
 dependencies:
+  - python=3.8
   - deepsig=1.2.5
+  - tensorflow=2.2.0=eigen_py38*
   - perl
