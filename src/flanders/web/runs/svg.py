@@ -35,7 +35,7 @@ def neighborhood(orfs: list[dict], selected_feature: str | None = None, width: i
              f'aria-label="Gene neighborhood map">']
     # axis
     parts.append(f'<line x1="{pad}" y1="{arrow_y + arrow_h / 2}" x2="{width - pad}" y2="{arrow_y + arrow_h / 2}" class="axis"/>')
-    for i, (key, label, color) in enumerate(TRACKS):
+    for i, (_key, label, _color) in enumerate(TRACKS):
         y = tracks_top + i * (track_h + 6)
         parts.append(f'<text x="{pad}" y="{y + track_h - 1}" class="tracklabel">{escape(label)}</text>')
     for o in orfs:

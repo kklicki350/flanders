@@ -62,7 +62,7 @@ def genomes(request, run_id: str):
     analyzed = len(by_tag)
     # Tallies: genomes in which a feature is significant upstream or downstream.
     tally = Counter()
-    for tag, es in by_tag.items():
+    for es in by_tag.values():
         feats = {f for e in es if e.location in FLANK for f, _q in e.significant}
         tally.update(feats)
     feature = request.GET.get("feature")
