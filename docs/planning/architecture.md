@@ -64,7 +64,7 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 - Python 3.11 or newer; one x86-64 Docker image as the canonical runtime (Linux, macOS Intel, Apple Silicon via emulation, WSL2).
 - **Decided stack:** Django with server-rendered templates, htmx, Tailwind (compiled CSS) and Alpine.js. The ledger, run history and FCER index live in SQLite inside the workspace.
-- **Orchestrated tools, version-pinned:** cblaster, antiSMASH 7, HMMER (`hmmscan`) with Pfam-A, mmseqs2, and the predictor chain (SignalP 5 / DeepSig / Phobius in the image; SignalP 6 and TMHMM 2.0c installed by the user only).
+- **Orchestrated tools, version-pinned:** cblaster, antiSMASH (8 primary, 7 supported), HMMER (`hmmscan`) with Pfam-A, mmseqs2, and the predictor chain (DeepSig in the image; SignalP 6, SignalP 5, TMHMM 2.0c and Phobius supplied by the user).
 - **Conflicting dependency pins** between antiSMASH and cblaster make a shared Python environment fragile.
 - **NCBI retrieval** is needed for fresh snapshots and manifest rebuilds (versioned assembly and protein accessions), subject to NCBI availability, rate limits and suppressed records.
 - **Reference data and image size:** antiSMASH databases, Pfam-A and the frozen *ebo* BLAST snapshot.
