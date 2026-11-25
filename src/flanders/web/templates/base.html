@@ -1,0 +1,43 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}FLANDERS{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'flanders/app.css' %}">
+  <script src="{% static 'vendor/htmx-2.0.4.min.js' %}" defer></script>
+  <meta name="htmx-config" content='{"historyCacheSize": 0}'>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<header class="nav">
+  <a class="brand" href="{% url 'runs:home' %}">FLANDERS</a>
+  <nav>
+    {% if run %}<a href="{% url 'runs:genomes' run.run_id %}" class="{% if nav == 'genomes' %}on{% endif %}">Genomes</a>{% endif %}
+    <a href="{% url 'runs:list' %}" class="{% if nav == 'runs' %}on{% endif %}">Runs</a>
+    <a href="{% url 'runs:compose' %}" class="{% if nav == 'compose' %}on{% endif %}">Compose</a>
+  </nav>
+  {% if run %}<span class="switch">Run <span class="mono">{{ run.name }}</span> · {{ run.get_status_display }}</span>{% endif %}
+</header>
+{% if active_run %}
+<div hx-get="{% url 'runs:ledger_active' %}" hx-trigger="load, every 2s" hx-swap="innerHTML"></div>
+{% endif %}
+<main>
+  {% for r in interrupted_runs %}
+  <div class="banner warning">Run <b>{{ r.name }}</b> was interrupted{% if r.stage %} during {{ r.stage }}{% endif %}.
+    <form method="post" action="{% url 'runs:resume' r.run_id %}" style="display:inline">{% csrf_token %}
+      <button type="submit">Resume · re-runs pipeline</button></form>
+  </div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+<div id="drawer"></div>
+<script>
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { document.getElementById("drawer").innerHTML = ""; }
+    if (e.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+      const f = document.querySelector("input[type=search]"); if (f) { e.preventDefault(); f.focus(); }
+    }
+  });
+</script>
+</body>
+</html>

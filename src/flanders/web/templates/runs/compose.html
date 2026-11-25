@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Compose · FLANDERS{% endblock %}
+{% block content %}
+<h1>Compose a run</h1>
+{% for e in errors %}<div class="banner failure" style="white-space:pre-wrap">{{ e }}</div>{% endfor %}
+<form class="composer" method="post" enctype="multipart/form-data">{% csrf_token %}
+<div class="grid2">
+<div>
+  <fieldset><legend>Inputs</legend>
+    <label for="name">Run name</label>
+    <input type="text" id="name" name="name" value="{{ form.name|default:'' }}" placeholder="ebo-cyanobacteria" style="width:100%">
+    <label for="query">Query cluster proteins (FASTA)</label>
+    <input type="file" id="query" name="query" accept=".faa,.fasta,.fa,.txt">
+    <div class="note">The file is copied into the run, so later edits to the original do not change it.</div>
+    <label>Genome set</label>
+    <div class="inline">
+      <label><input type="radio" name="search" value="snapshot" {% if form.search != 'remote' %}checked{% endif %}> Fresh snapshot of listed assemblies (reproducible)</label>
+      <label><input type="radio" name="search" value="remote" {% if form.search == 'remote' %}checked{% endif %}> Remote NCBI search (not reproducible)</label>
+    </div>
+    <label for="genomes">Assembly accessions, one per line <span class="flag">genomes:</span></label>
+    <textarea id="genomes" name="genomes" rows="6" placeholder="GCF_000011345.1&#10;GCF_000017845.1">{{ form.genomes|default:'' }}</textarea>
+  </fieldset>
+  <fieldset><legend>Neighborhood and features</legend>
+    <label for="flank_orfs">Flank ORFs on each side <span class="flag">flank_orfs</span></label>
+    <input type="number" id="flank_orfs" name="flank_orfs" min="1" max="50" value="{{ form.flank_orfs|default:4 }}">
+    <label>Features to test <span class="flag">features</span></label>
+    <div class="inline">
+      <label><input type="checkbox" name="features" value="signal_peptide" {% if "signal_peptide" in features_checked %}checked{% endif %}> Signal peptide</label>
+      <label><input type="checkbox" name="features" value="transmembrane" {% if "transmembrane" in features_checked %}checked{% endif %}> Transmembrane</label>
+      <label><input type="checkbox" name="features" value="pfam" {% if "pfam" in features_checked %}checked{% endif %}> Pfam domains</label>
+      <label><input type="checkbox" name="features" value="antismash" {% if "antismash" in features_checked %}checked{% endif %}> antiSMASH BGC classes</label>
+    </div>
+    <div class="note">Signal peptides use SignalP 6 → SignalP 5 → DeepSig → Phobius, whichever is installed (<code>flanders tools status</code>).</div>
+    <label for="organism_group">Organism group (predictor model) <span class="flag">organism_group</span></label>
+    <select id="organism_group" name="organism_group">
+      <option value="gram-negative" {% if form.organism_group == 'gram-negative' or not form.organism_group %}selected{% endif %}>gram-negative</option>
+      <option value="gram-positive" {% if form.organism_group == 'gram-positive' %}selected{% endif %}>gram-positive</option>
+      <option value="eukaryote" {% if form.organism_group == 'eukaryote' %}selected{% endif %}>eukaryote</option>
+    </select>
+  </fieldset>
+  <fieldset><legend>Statistics</legend>
+    <div class="inline">
+      <label><input type="checkbox" name="tests" value="binomial" checked> Binomial</label>
+      <label><input type="checkbox" name="tests" value="permutation" checked> Permutation</label>
+    </div>
+    <div class="row">
+      <div><label for="correction">Correction</label>
+        <select id="correction" name="correction"><option value="bh">Benjamini–Hochberg</option><option value="bonferroni">Bonferroni</option><option value="none">none</option></select></div>
+      <div><label for="threshold">Significance threshold (q)</label><input type="number" step="0.001" id="threshold" name="threshold" value="{{ form.threshold|default:'0.05' }}"></div>
+      <div><label for="background">Background</label>
+        <select id="background" name="background"><option value="paralog_collapsed">paralog-collapsed</option><option value="raw">raw</option></select></div>
+      <div><label for="permutations">Permutations</label><input type="number" id="permutations" name="permutations" value="{{ form.permutations|default:'10000' }}"></div>
+    </div>
+  </fieldset>
+</div>
+<div>
+  <fieldset><legend>cblaster</legend>
+    {% for key, label, flag in curated %}
+      <label for="cb_{{ key }}">{{ label }} <span class="flag">{{ flag }}</span></label>
+      <input type="text" id="cb_{{ key }}" name="cb_{{ key }}" placeholder="cblaster default">
+    {% endfor %}
+    <label for="cb_extra">Advanced: pass-through parameters <span class="unvalidated">passed through unvalidated</span></label>
+    <textarea id="cb_extra" name="cb_extra" rows="3" placeholder="entrez_query=Cyanobacteria[orgn]">{{ form.cb_extra|default:'' }}</textarea>
+  </fieldset>
+  <fieldset><legend>antiSMASH</legend>
+    <label for="as_taxon">Taxon <span class="flag">--taxon</span></label>
+    <select id="as_taxon" name="as_taxon"><option>bacteria</option><option>fungi</option></select>
+    <label class="inline"><input type="checkbox" name="as_minimal" checked> Region detection only <span class="flag">--minimal</span></label>
+    <label for="as_extra">Advanced: pass-through parameters <span class="unvalidated">passed through unvalidated</span></label>
+    <textarea id="as_extra" name="as_extra" rows="3" placeholder="hmmdetection-strictness=relaxed">{{ form.as_extra|default:'' }}</textarea>
+  </fieldset>
+  <div style="display:flex;gap:.6rem">
+    <button type="submit" name="action" value="review">Review</button>
+    {% if active %}<button type="submit" name="action" value="review" title="Another run is active">Save config (a run is active)</button>
+    {% else %}<button class="primary" type="submit" name="action" value="launch">⏱ Launch · re-runs pipeline</button>{% endif %}
+  </div>
+  {% if review %}
+  <fieldset style="margin-top:1rem"><legend>Review</legend>
+    <div class="note">Saved to <span class="mono">{{ review.path }}</span>. The same run from a terminal:</div>
+    <pre class="mono" style="background:var(--surface-2);padding:.5rem">{{ review.command }}</pre>
+    <pre class="mono" style="background:var(--surface-2);padding:.5rem;max-height:420px;overflow:auto">{{ review.yaml }}</pre>
+  </fieldset>
+  {% endif %}
+</div>
+</div>
+</form>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% load flanders_fmt %}{% if run %}
+<div class="ledgerbar" role="status" aria-live="polite">
+  <b>{{ run.name }}</b>
+  <span>{{ run.get_status_display }}{% if run.stage %} · {{ run.stage }}{% endif %}</span>
+  {% with done=counts.complete failed=counts.failed %}
+  <span class="mono">{{ done|default:0 }} done · <span style="color:var(--failure)">{{ failed|default:0 }} failed</span> · {{ counts|get:"in progress"|default:0 }} in progress · {{ counts.pending|default:0 }} pending</span>
+  {% endwith %}
+  <span class="muted">since {{ run.started_at|time:"H:i" }} UTC</span>
+  <a href="#" hx-get="{% url 'runs:ledger' run.run_id %}?panel=1" hx-target="#ledger-panel" hx-swap="outerHTML">details</a>
+  {% if active %}<form method="post" action="{% url 'runs:cancel' run.run_id %}" style="margin-left:auto" onsubmit="return confirm('Cancel this run? Completed tasks are kept and it can be resumed.')">{% csrf_token %}<button class="danger">Cancel run</button></form>{% endif %}
+</div>
+{% if panel %}
+<div id="ledger-panel" style="padding:.5rem 1.25rem;background:var(--surface)">
+  <p class="note">Failures are recorded with their reason and not retried; the run continues for the other genomes.</p>
+  <table class="data"><thead><tr><th>Genome</th><th>Stage</th><th>Status</th><th>Reason</th></tr></thead><tbody>
+  {% for t in tags %}<tr class="{% if t.status == 'failed' %}failed{% endif %}"><td class="mono">{{ t.tag }}</td><td>{{ t.stage }}</td><td>{{ t.status }}</td><td>{{ t.reason }}</td></tr>{% endfor %}
+  </tbody></table>
+</div>
+{% else %}<div id="ledger-panel"></div>{% endif %}
+{% endif %}

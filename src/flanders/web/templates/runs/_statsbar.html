@@ -1,0 +1,10 @@
+<div class="statsbar" role="region" aria-label="Statistical settings">
+  <span><span class="k">Tests</span><span class="chip">{{ stats.tests|join:" + " }}</span></span>
+  <span><span class="k">Correction</span><span class="chip">{{ stats.correction }}</span></span>
+  <span><span class="k">Threshold</span><span class="chip">q &lt; {{ stats.threshold }}</span></span>
+  <span><span class="k">Background</span><span class="chip">{{ stats.background }}</span></span>
+  <span class="heavy" title="Changing these requires a re-run">
+    {% if eff %}<span class="chip">flank_orfs {{ eff.flank_orfs }}</span><span class="chip">search {{ eff.search }}</span>{% endif %}
+    <a class="btn" href="{% url 'runs:export_config' run.run_id %}" title="Download this run's effective config to edit and re-run">Export config</a>
+  </span>
+</div>

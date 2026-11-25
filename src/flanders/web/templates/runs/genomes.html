@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ run.name }} · Genomes · FLANDERS{% endblock %}
+{% block content %}
+<h1>{{ run.name }}</h1>
+<div class="denom">
+  <b>{{ analyzed }}</b> genomes analyzed of {{ requested }}
+  {% if report.failed %} · <span class="fail">{{ report.failed|length }} failed</span>{% endif %}
+  {% if report.excluded %} · {{ report.excluded|length }} excluded{% endif %}
+</div>
+{% if report.failed or report.excluded %}
+<details class="failures"><summary>Show failed and excluded genomes with reasons</summary>
+  <ul>
+    {% for f in report.failed %}<li><span class="mono">{{ f.tag }}</span> failed in {{ f.stage }}: {{ f.reason }} — {{ f.detail|truncatechars:200 }}</li>{% endfor %}
+    {% for x in report.excluded %}<li style="color:var(--muted)"><span class="mono">{{ x.tag }}</span> excluded: {{ x.reason }}</li>{% endfor %}
+  </ul>
+</details>
+{% endif %}
+
+{% include "runs/_statsbar.html" %}
+
+{% if tallies %}
+<div class="tallies" aria-label="Feature tallies">
+  {% for f, k in tallies %}
+    <a class="chip {% if feature == f %}on{% endif %}" href="?{% if feature != f %}feature={{ f|urlencode }}&{% endif %}sort={{ sort }}">{{ f }} · {{ k }}/{{ analyzed }} genomes significant</a>
+  {% endfor %}
+</div>
+<p class="note">Counts of per-genome results (significant upstream or downstream under {{ stats.tests.0 }}) — not a cross-genome test.</p>
+{% endif %}
+
+<div class="toolbar">
+  <input type="search" name="q" value="{{ q }}" placeholder="Filter by accession or organism  ( / )" aria-label="Filter genomes"
+         hx-get="" hx-trigger="input changed delay:250ms" hx-target="#rows" hx-push-url="true"
+         hx-include="this" hx-vals='{"sort": "{{ sort }}"{% if feature %}, "feature": "{{ feature }}"{% endif %}}'>
+  <span class="muted">Sort:</span>
+  <a href="?sort=sig{% if feature %}&feature={{ feature|urlencode }}{% endif %}" {% if sort == 'sig' %}style="font-weight:600"{% endif %}>significant features</a>
+  <a href="?sort=genome{% if feature %}&feature={{ feature|urlencode }}{% endif %}" {% if sort == 'genome' %}style="font-weight:600"{% endif %}>organism</a>
+  {% if feature %}<span class="chip">feature: {{ feature }} <a href="?sort={{ sort }}" aria-label="Remove filter">×</a></span>{% endif %}
+</div>
+
+<table class="data">
+  <thead><tr><th>Genome</th><th>Organism</th><th>Location</th><th class="num">Significant</th>
+    <th>Top features (q)</th><th class="num">Best q</th><th>Record</th><th></th></tr></thead>
+  <tbody id="rows">{% include "runs/_genome_rows.html" %}</tbody>
+</table>
+{% endblock %}

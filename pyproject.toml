@@ -59,6 +59,7 @@ ignore = ["E501"]
 
 [tool.importlinter]
 root_package = "flanders"
+include_external_packages = true
 
 [[tool.importlinter.contracts]]
 name = "Django-free core"

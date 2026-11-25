@@ -1,0 +1,25 @@
+<aside class="drawer" role="dialog" aria-label="Provenance">
+  <button class="close" onclick="document.getElementById('drawer').innerHTML=''" aria-label="Close">Close (Esc)</button>
+  <h2 style="margin-top:0">Provenance</h2>
+  <div class="muted mono">{{ tag }} · {{ location }} · run {{ run_id }}</div>
+  {% if not prov.discovery_reproducible %}<div class="banner warning">Remote search: discovery is not reproducible (NCBI changes continuously). Searched {{ prov.search_metadata.searched_at }}.</div>{% endif %}
+  <h3>Versions</h3>
+  <table class="data"><tbody>
+    <tr><td>FLANDERS</td><td class="mono">{{ prov.flanders_version }}</td></tr>
+    {% for t in prov.tools %}<tr><td>{{ t.tool }}</td><td class="mono">{{ t.version }}</td></tr>{% endfor %}
+  </tbody></table>
+  <h3>Analyzers used</h3>
+  <table class="data"><tbody>{% for role, tool in prov.analyzers.items %}<tr><td>{{ role }}</td><td class="mono">{{ tool }}</td></tr>{% endfor %}
+  {% for f, why in prov.unavailable_features.items %}<tr><td>{{ f }}</td><td style="color:var(--warning)">not available: {{ why }}</td></tr>{% endfor %}</tbody></table>
+  <h3>Reference data and inputs</h3>
+  <table class="data"><tbody>
+    {% for k, v in prov.reference_checksums.items %}<tr><td>{{ k }}</td><td class="mono" title="{{ v }}">{{ v|truncatechars:24 }}</td></tr>{% endfor %}
+    {% for k, v in prov.input_checksums.items %}<tr><td>{{ k }}</td><td class="mono" title="{{ v }}">{{ v|truncatechars:24 }}</td></tr>{% endfor %}
+  </tbody></table>
+  <h3>Effective configuration</h3>
+  <p class="note">Dependency sections (<code>cblaster:</code>, <code>antismash:</code>) are passed through unvalidated.</p>
+  <pre>{{ config_yaml }}</pre>
+  <p><a class="btn primary" href="{% url 'runs:export_config' run_id %}">Export as config</a></p>
+  <h3>Cite</h3>
+  <p class="note">{{ prov.citation }}</p>
+</aside>

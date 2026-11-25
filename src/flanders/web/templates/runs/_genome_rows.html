@@ -1,0 +1,14 @@
+{% load flanders_fmt %}{% for r in rows %}
+<tr>
+  <td class="mono"><a href="{% url 'runs:genome' run.run_id r.e.tag %}?location={{ r.e.location }}">{{ r.e.tag }}</a></td>
+  <td>{{ r.e.organism }}</td>
+  <td>{{ r.e.location }}</td>
+  <td class="num">{{ r.n_sig }}</td>
+  <td>{% for f, qv in r.top %}<span class="chip" title="q = {{ qv|sci }}">{{ f }}</span> {% empty %}<span class="muted">—</span>{% endfor %}</td>
+  <td class="num mono">{{ r.e.best_q|sci }}</td>
+  <td class="mono muted">{{ r.e.record }}</td>
+  <td><a href="#" hx-get="{% url 'runs:provenance' run.run_id r.e.tag r.e.location %}" hx-target="#drawer">provenance</a></td>
+</tr>
+{% empty %}
+<tr><td colspan="8" class="muted">No genomes match{% if q %} “{{ q }}”{% endif %}{% if feature %} with {{ feature }} significant{% endif %}.</td></tr>
+{% endfor %}

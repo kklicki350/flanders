@@ -1,0 +1,71 @@
+{% extends "base.html" %}{% load flanders_fmt %}
+{% block title %}{{ tag }} · {{ run.name }} · FLANDERS{% endblock %}
+{% block content %}
+<div class="muted"><a href="{% url 'runs:genomes' run.run_id %}">{{ run.name }}</a> › <span class="mono">{{ tag }}</span>{% if selected %} › {{ selected }}{% endif %}</div>
+<h1>{{ fc.organism|default:tag }} <span class="mono muted" style="font-size:1rem">{{ tag }}</span></h1>
+<div class="muted">Seed on <span class="mono">{{ fc.neighborhood.record }}:{{ fc.neighborhood.seed_start }}-{{ fc.neighborhood.seed_end }}({{ fc.neighborhood.seed_strand }})</span>
+  · {{ fc.neighborhood.flank_orfs }} flank ORFs each side
+  · <a href="#" hx-get="{% url 'runs:provenance' run.run_id tag loc %}" hx-target="#drawer">provenance</a></div>
+
+{% include "runs/_statsbar.html" %}
+
+<h2>Neighborhood</h2>
+{{ map }}
+<div class="legend">
+  <span><i style="background:var(--gene-seed)"></i>seed cluster</span>
+  <span><i style="background:var(--gene-flank)"></i>flank</span>
+  <span><i style="background:var(--track-antismash)"></i>antiSMASH BGC</span>
+  <span><i style="background:var(--track-sp)"></i>signal peptide</span>
+  <span><i style="background:var(--track-tm)"></i>transmembrane</span>
+  <span><i style="background:var(--track-pfam)"></i>Pfam domain</span>
+  {% if selected %}<span><i style="border:2px solid var(--selected)"></i>carries {{ selected }}</span>{% endif %}
+</div>
+{% if fc.provenance.unavailable_features %}
+<div class="banner warning">{% for f, why in fc.provenance.unavailable_features.items %}<div><b>{{ f }}</b> not tested: {{ why }}</div>{% endfor %}</div>
+{% endif %}
+
+<div class="tabs" role="tablist">
+  {% for l in locations %}<a role="tab" class="{% if l == loc %}on{% endif %}" href="?location={{ l }}">{{ l }}</a>{% endfor %}
+</div>
+<table class="data">
+  <thead><tr><th>Feature</th><th class="num">Neighborhood k/n</th><th class="num">Background rate</th>
+    <th class="num">log2 enrichment</th>
+    {% for t in tests %}<th class="num">{{ t }} p</th><th class="num">{{ t }} q</th><th>{{ t }}</th>{% endfor %}
+    <th>Predictor</th></tr></thead>
+  <tbody>
+  {% for r in table %}
+    <tr>
+      <td><a href="?location={{ loc }}&feature={{ r.feature|urlencode }}">{{ r.feature }}</a></td>
+      <td class="num">{{ r.k }}/{{ r.n }}</td>
+      <td class="num">{{ r.b }}/{{ r.B }} ({{ r.b|ratio:r.B }})</td>
+      <td class="num">{{ r.effect|dec2 }}</td>
+      {% for t in tests %}{% with x=r|get:t %}
+        <td class="num mono">{% if x.p_value is None %}<span title="{{ x.reason }}">—</span>{% else %}{{ x.p_value|sci }}{% endif %}</td>
+        <td class="num mono">{{ x.q_value|sci }}</td>
+        <td><span class="badge {% if x.significant %}sig{% endif %}">{% if x.significant %}significant{% else %}not significant{% endif %}</span></td>
+      {% endwith %}{% endfor %}
+      <td class="muted">{{ r.predictor|default:"" }}</td>
+    </tr>
+  {% empty %}<tr><td colspan="9" class="muted">No features were tested at this location.</td></tr>{% endfor %}
+  </tbody>
+</table>
+<p class="note">Correction ({{ stats.correction }}) applied across all features tested for this genome × location, separately for each test. {{ fc.provenance.background_definition }}</p>
+
+<h2>Covariates</h2>
+<table class="data" style="max-width:820px">
+  <thead><tr><th></th><th class="num">Neighborhood mean</th><th class="num">Population mean</th><th class="num">Mann–Whitney p</th></tr></thead>
+  <tbody>
+    <tr><td>GC fraction</td><td class="num">{{ fc.covariates.gc.flank.mean|dec2 }}</td><td class="num">{{ fc.covariates.gc.background.mean|dec2 }}</td><td class="num mono">{{ fc.covariates.gc.mann_whitney_p|sci }}</td></tr>
+    <tr><td>Length (aa)</td><td class="num">{{ fc.covariates.length_aa.flank.mean|floatformat:0 }}</td><td class="num">{{ fc.covariates.length_aa.background.mean|floatformat:0 }}</td><td class="num mono">{{ fc.covariates.length_aa.mann_whitney_p|sci }}</td></tr>
+  </tbody>
+</table>
+
+<h2>Neighborhood ORFs</h2>
+<table class="data">
+  <thead><tr><th>ORF</th><th>Location</th><th>Coordinates</th><th>Product</th><th>Features</th></tr></thead>
+  <tbody>{% for o in fc.neighborhood.orfs %}
+    <tr><td class="mono">{{ o.orf_id }}</td><td>{{ o.location }}</td><td class="mono">{{ o.start }}-{{ o.end }}({{ o.strand }})</td>
+      <td>{{ o.product|default:"" }}</td><td>{% for f in o.features %}<span class="chip">{{ f }}</span> {% endfor %}</td></tr>
+  {% endfor %}</tbody>
+</table>
+{% endblock %}

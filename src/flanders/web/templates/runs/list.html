@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Runs · FLANDERS{% endblock %}
+{% block content %}
+<h1>Runs</h1>
+{% if error %}<div class="banner failure">{{ error }}</div>{% endif %}
+{% if not runs %}
+  <div class="banner">No runs yet. <a href="{% url 'runs:compose' %}">Compose a run</a>, or run
+    <code>flanders run -c run.yaml</code> from a terminal.</div>
+{% else %}
+<table class="data">
+  <thead><tr><th>Name</th><th>Status</th><th>Kind</th><th>Created</th><th class="num">Genomes</th>
+    <th class="num">Failed</th><th>Search</th><th>Flank ORFs</th><th>Statistics</th><th></th></tr></thead>
+  <tbody>
+  {% for r in runs %}
+    <tr class="{% if r.status == 'failed' or r.status == 'halted' %}failed{% endif %}">
+      <td>{% if r.fcers.exists %}<a href="{% url 'runs:genomes' r.run_id %}">{{ r.name }}</a>{% else %}{{ r.name }}{% endif %}
+        <div class="muted mono" style="font-size:.8rem">{{ r.run_id }}</div></td>
+      <td>{{ r.get_status_display }}{% if r.message %}<div class="muted" style="font-size:.85rem;max-width:30rem">{{ r.message|truncatechars:160 }}</div>{% endif %}</td>
+      <td>{{ r.kind }}</td>
+      <td class="mono">{{ r.created_at|date:"Y-m-d H:i" }}</td>
+      <td class="num">{{ r.genome_count }}</td>
+      <td class="num">{{ r.failed_count }}</td>
+      <td>{{ r.key_params.search }}</td>
+      <td class="num">{{ r.key_params.flank_orfs }}</td>
+      <td class="mono">{{ r.key_params.tests|join:"+" }} · {{ r.key_params.correction }} · q&lt;{{ r.key_params.threshold }}</td>
+      <td>
+        {% if r.status == 'running' %}
+          <form method="post" action="{% url 'runs:cancel' r.run_id %}" onsubmit="return confirm('Cancel this run? Completed tasks are kept and it can be resumed.')">{% csrf_token %}<button class="danger">Cancel run</button></form>
+        {% elif r.status == 'cancelled' or r.status == 'interrupted' %}
+          <form method="post" action="{% url 'runs:resume' r.run_id %}">{% csrf_token %}<button>Resume · re-runs pipeline</button></form>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}

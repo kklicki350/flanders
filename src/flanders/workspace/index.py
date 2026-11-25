@@ -13,11 +13,13 @@ from flanders.workspace.layout import Workspace
 from flanders.workspace.models import FcerEntry, Run, RunStatus
 
 
-def _summary(data: dict) -> tuple[list[str], float | None]:
+def _summary(data: dict) -> tuple[list[list], float | None]:
+    """Significant features under the run's primary (first) test as [feature, q], best first."""
     tests = data["tests"]
     primary = data["statistics"]["tests"][0] if data["statistics"]["tests"] else None
-    sig = sorted({t["feature"] for t in tests if t["test"] == primary and t["significant"]})
-    qs = [t["q_value"] for t in tests if t["test"] == primary and t["q_value"] is not None]
+    rows = [t for t in tests if t["test"] == primary]
+    sig = sorted(([t["feature"], t["q_value"]] for t in rows if t["significant"]), key=lambda x: (x[1], x[0]))
+    qs = [t["q_value"] for t in rows if t["q_value"] is not None]
     return sig, (min(qs) if qs else None)
 
 
