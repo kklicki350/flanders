@@ -1,0 +1,5 @@
+name: env-hmmer-mmseqs
+channels: [conda-forge, bioconda]
+dependencies:
+  - hmmer=3.4
+  - mmseqs2=17.b804f

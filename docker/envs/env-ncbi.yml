@@ -1,0 +1,4 @@
+name: env-ncbi
+channels: [conda-forge]
+dependencies:
+  - ncbi-datasets-cli=18.41.1

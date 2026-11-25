@@ -1,0 +1,9 @@
+.venv
+.git
+archive
+docs
+_bmad
+.claude
+dissertation.pdf
+tests
+**/__pycache__

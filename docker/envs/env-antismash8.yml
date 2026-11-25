@@ -1,0 +1,4 @@
+name: env-antismash8
+channels: [conda-forge, bioconda]
+dependencies:
+  - antismash=8.0.4

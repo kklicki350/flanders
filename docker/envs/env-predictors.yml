@@ -1,0 +1,7 @@
+# DeepSig ships in the image. PyTorch and Perl are here so user-supplied SignalP 6,
+# SignalP 5, TMHMM 2.0c and Phobius run without further downloads.
+name: env-predictors
+channels: [conda-forge, bioconda]
+dependencies:
+  - deepsig=1.2.5
+  - perl

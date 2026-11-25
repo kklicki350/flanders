@@ -1,0 +1,522 @@
+{
+  "$defs": {
+    "Covariates": {
+      "additionalProperties": false,
+      "properties": {
+        "gc": {
+          "additionalProperties": true,
+          "title": "Gc",
+          "type": "object"
+        },
+        "length_aa": {
+          "additionalProperties": true,
+          "title": "Length Aa",
+          "type": "object"
+        }
+      },
+      "required": [
+        "gc",
+        "length_aa"
+      ],
+      "title": "Covariates",
+      "type": "object"
+    },
+    "FeatureTest": {
+      "additionalProperties": false,
+      "properties": {
+        "background_hits": {
+          "title": "Background Hits",
+          "type": "integer"
+        },
+        "background_n": {
+          "title": "Background N",
+          "type": "integer"
+        },
+        "effect_log2": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "log2 enrichment, 0.5 pseudocount",
+          "title": "Effect Log2"
+        },
+        "feature": {
+          "title": "Feature",
+          "type": "string"
+        },
+        "k": {
+          "description": "Neighborhood ORFs carrying the feature",
+          "title": "K",
+          "type": "integer"
+        },
+        "n": {
+          "description": "Neighborhood ORFs at this location",
+          "title": "N",
+          "type": "integer"
+        },
+        "p_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "P Value"
+        },
+        "predictor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Tool that produced the feature call",
+          "title": "Predictor"
+        },
+        "q_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Corrected across features at this location",
+          "title": "Q Value"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Why a value is null",
+          "title": "Reason"
+        },
+        "significant": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Significant"
+        },
+        "test": {
+          "enum": [
+            "binomial",
+            "permutation"
+          ],
+          "title": "Test",
+          "type": "string"
+        }
+      },
+      "required": [
+        "feature",
+        "test",
+        "k",
+        "n",
+        "background_hits",
+        "background_n",
+        "effect_log2",
+        "p_value",
+        "q_value",
+        "significant"
+      ],
+      "title": "FeatureTest",
+      "type": "object"
+    },
+    "Neighborhood": {
+      "additionalProperties": false,
+      "properties": {
+        "flank_orfs": {
+          "title": "Flank Orfs",
+          "type": "integer"
+        },
+        "orfs": {
+          "items": {
+            "$ref": "#/$defs/NeighborhoodOrf"
+          },
+          "title": "Orfs",
+          "type": "array"
+        },
+        "record": {
+          "description": "Nucleotide accession.version carrying the cluster",
+          "title": "Record",
+          "type": "string"
+        },
+        "seed_end": {
+          "description": "1-based inclusive",
+          "title": "Seed End",
+          "type": "integer"
+        },
+        "seed_start": {
+          "description": "1-based inclusive",
+          "title": "Seed Start",
+          "type": "integer"
+        },
+        "seed_strand": {
+          "enum": [
+            "+",
+            "-"
+          ],
+          "title": "Seed Strand",
+          "type": "string"
+        }
+      },
+      "required": [
+        "record",
+        "seed_start",
+        "seed_end",
+        "seed_strand",
+        "flank_orfs",
+        "orfs"
+      ],
+      "title": "Neighborhood",
+      "type": "object"
+    },
+    "NeighborhoodOrf": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "title": "End",
+          "type": "integer"
+        },
+        "features": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Features",
+          "type": "array"
+        },
+        "length_aa": {
+          "title": "Length Aa",
+          "type": "integer"
+        },
+        "location": {
+          "enum": [
+            "upstream",
+            "seed",
+            "downstream"
+          ],
+          "title": "Location",
+          "type": "string"
+        },
+        "locus_tag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Locus Tag"
+        },
+        "orf_id": {
+          "title": "Orf Id",
+          "type": "string"
+        },
+        "product": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Product"
+        },
+        "start": {
+          "title": "Start",
+          "type": "integer"
+        },
+        "strand": {
+          "enum": [
+            "+",
+            "-"
+          ],
+          "title": "Strand",
+          "type": "string"
+        }
+      },
+      "required": [
+        "orf_id",
+        "location",
+        "start",
+        "end",
+        "strand",
+        "locus_tag",
+        "product",
+        "length_aa",
+        "features"
+      ],
+      "title": "NeighborhoodOrf",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "analyzers": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "role -> tool actually used, after fallback",
+          "title": "Analyzers",
+          "type": "object"
+        },
+        "background_definition": {
+          "title": "Background Definition",
+          "type": "string"
+        },
+        "citation": {
+          "title": "Citation",
+          "type": "string"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "string"
+        },
+        "discovery_reproducible": {
+          "title": "Discovery Reproducible",
+          "type": "boolean"
+        },
+        "effective_config": {
+          "additionalProperties": true,
+          "title": "Effective Config",
+          "type": "object"
+        },
+        "flanders_version": {
+          "title": "Flanders Version",
+          "type": "string"
+        },
+        "input_checksums": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Input Checksums",
+          "type": "object"
+        },
+        "reference_checksums": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Reference Checksums",
+          "type": "object"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "run_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Run Name"
+        },
+        "search_metadata": {
+          "additionalProperties": true,
+          "title": "Search Metadata",
+          "type": "object"
+        },
+        "search_mode": {
+          "title": "Search Mode",
+          "type": "string"
+        },
+        "tools": {
+          "items": {
+            "$ref": "#/$defs/ToolRecord"
+          },
+          "title": "Tools",
+          "type": "array"
+        },
+        "unavailable_features": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Unavailable Features",
+          "type": "object"
+        }
+      },
+      "required": [
+        "flanders_version",
+        "created_at",
+        "run_id",
+        "run_name",
+        "search_mode",
+        "discovery_reproducible",
+        "search_metadata",
+        "effective_config",
+        "tools",
+        "reference_checksums",
+        "input_checksums",
+        "analyzers",
+        "unavailable_features",
+        "background_definition",
+        "citation"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "StatisticsSettings": {
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "title": "Background",
+          "type": "string"
+        },
+        "correction": {
+          "title": "Correction",
+          "type": "string"
+        },
+        "paralog_coverage": {
+          "title": "Paralog Coverage",
+          "type": "number"
+        },
+        "paralog_identity": {
+          "title": "Paralog Identity",
+          "type": "number"
+        },
+        "permutations": {
+          "title": "Permutations",
+          "type": "integer"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "tests": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tests",
+          "type": "array"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "tests",
+        "correction",
+        "threshold",
+        "background",
+        "permutations",
+        "paralog_identity",
+        "paralog_coverage",
+        "seed"
+      ],
+      "title": "StatisticsSettings",
+      "type": "object"
+    },
+    "ToolRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "title": "Tool",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tool",
+        "version"
+      ],
+      "title": "ToolRecord",
+      "type": "object"
+    }
+  },
+  "$id": "https://github.com/kklicki350/flanders/schemas/fcer/1.0/fcer.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "covariates": {
+      "$ref": "#/$defs/Covariates"
+    },
+    "location": {
+      "enum": [
+        "upstream",
+        "seed",
+        "downstream"
+      ],
+      "title": "Location",
+      "type": "string"
+    },
+    "neighborhood": {
+      "$ref": "#/$defs/Neighborhood"
+    },
+    "organism": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Organism"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "statistics": {
+      "$ref": "#/$defs/StatisticsSettings"
+    },
+    "tag": {
+      "description": "Assembly accession.version",
+      "title": "Tag",
+      "type": "string"
+    },
+    "tests": {
+      "items": {
+        "$ref": "#/$defs/FeatureTest"
+      },
+      "title": "Tests",
+      "type": "array"
+    }
+  },
+  "required": [
+    "tag",
+    "organism",
+    "location",
+    "neighborhood",
+    "statistics",
+    "tests",
+    "covariates",
+    "provenance"
+  ],
+  "title": "FLANDERS Cluster Enrichment Record",
+  "type": "object"
+}

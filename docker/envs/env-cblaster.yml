@@ -1,0 +1,5 @@
+name: env-cblaster
+channels: [conda-forge, bioconda]
+dependencies:
+  - cblaster=1.4.2
+  - diamond=2.2.9

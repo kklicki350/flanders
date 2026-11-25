@@ -1,0 +1,2 @@
+def nav(request):
+    return {}

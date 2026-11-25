@@ -1,0 +1,67 @@
+[project]
+name = "flanders"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "biopython>=1.88",
+    "django~=5.2",
+    "jsonschema>=4.26.0",
+    "numpy>=2.4.6",
+    "pydantic>=2.7",
+    "pyyaml>=6.0.4",
+    "scipy>=1.17.1",
+    "typer>=0.29.2",
+]
+
+[project.scripts]
+flanders = "flanders:main"
+
+[build-system]
+requires = ["uv_build>=0.13.9,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "import-linter>=2.17",
+    "pytest>=9.2.0",
+    "pytest-django>=4.14.0",
+    "ruff>=0.17.6",
+    "statsmodels>=0.15.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+DJANGO_SETTINGS_MODULE = "flanders.web.settings"
+markers = [
+    "adapter: parses recorded upstream tool outputs",
+    "e2e: needs the FLANDERS image and network",
+]
+addopts = "-m 'not e2e'"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S603", "TID251"]
+ignore = ["E501"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"subprocess".msg = "Run external programs through flanders.engine.invoke.run_tool()"
+"random".msg = "Use an explicit numpy Generator from flanders.harness.rng.child()"
+
+[tool.ruff.lint.per-file-ignores]
+"src/flanders/engine/invoke.py" = ["TID251", "S603"]
+"src/flanders/engine/supervisor.py" = ["TID251", "S603"]
+"tests/**" = ["S", "TID251"]
+
+[tool.importlinter]
+root_package = "flanders"
+
+[[tool.importlinter.contracts]]
+name = "Django-free core"
+type = "forbidden"
+source_modules = ["flanders.harness", "flanders.fcer", "flanders.genomics", "flanders.config"]
+forbidden_modules = ["django", "flanders.web", "flanders.workspace"]

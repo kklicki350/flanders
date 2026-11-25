@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# `flanders` on the host: runs the FLANDERS image so users never type Docker flags.
+#  - the workspace is mounted read-write at the same path it has on the host
+#  - the current directory and the folders of any input paths are mounted read-only
+#  - the GUI is published on 127.0.0.1 only
+#  - arguments and exit codes pass through unchanged
+set -euo pipefail
+
+IMAGE="${FLANDERS_IMAGE:-ghcr.io/kklicki350/flanders:latest}"
+WS="${FLANDERS_WORKSPACE:-$HOME/flanders}"
+mkdir -p "$WS/.flanders/home"
+WS="$(cd "$WS" && pwd)"
+
+if [[ "${1:-}" == "self-update" ]]; then
+  docker pull "$IMAGE"
+  exec "$0" reference fetch --missing-only
+fi
+
+declare -A seen=()
+mounts=(-v "$WS:$WS")
+add_ro() {
+  local d="$1"
+  [[ -d "$d" ]] || return 0
+  d="$(cd "$d" && pwd)"
+  [[ "$d" == "$WS" || "$d" == "$WS"/* || -n "${seen[$d]:-}" ]] && return 0
+  seen[$d]=1
+  mounts+=(-v "$d:$d:ro")
+}
+add_ro "$PWD"
+
+ports=()
+out_dir=""
+prev=""
+for arg in "$@"; do
+  if [[ "$prev" == "--out" ]]; then out_dir="$arg"; fi
+  if [[ "$prev" == "--port" ]]; then ports=(-p "127.0.0.1:$arg:$arg"); fi
+  if [[ -e "$arg" ]]; then
+    add_ro "$(dirname "$arg")"
+    # A config file's inputs are resolved relative to its folder.
+    if [[ -f "$arg" && "$arg" == *.y*ml ]]; then
+      while IFS= read -r p; do
+        [[ -z "$p" ]] && continue
+        [[ "$p" != /* ]] && p="$(dirname "$arg")/$p"
+        [[ -e "$p" ]] && add_ro "$(dirname "$p")"
+      done < <(sed -nE 's/^(query|genomes|tree):[[:space:]]*"?([^"#]*[^"#[:space:]])"?.*$/\2/p' "$arg")
+    fi
+  fi
+  prev="$arg"
+done
+if [[ -n "$out_dir" ]]; then
+  mkdir -p "$out_dir"
+  out_dir="$(cd "$out_dir" && pwd)"
+  mounts+=(-v "$out_dir:$out_dir")
+fi
+if [[ "${1:-}" == "gui" && ${#ports[@]} -eq 0 ]]; then ports=(-p "127.0.0.1:8765:8765"); fi
+
+tty=(-i)
+[[ -t 0 && -t 1 ]] && tty=(-it)
+
+exec docker run --rm "${tty[@]}" --platform linux/amd64 \
+  --user "$(id -u):$(id -g)" -e HOME="$WS/.flanders/home" \
+  -e FLANDERS_WORKSPACE="$WS" "${mounts[@]}" "${ports[@]}" -w "$PWD" \
+  "$IMAGE" "$@"
